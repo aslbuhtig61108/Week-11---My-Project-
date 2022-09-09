@@ -19,7 +19,8 @@ public class ProjectsApp {
  
 		"1) Add a project", // Week 9 - ITEM#1a
 		"2) List projects", // Week 10 - ITEM#1 page 2
-		"3) Select a project" // Week 10 - ITEM#2 page 2
+		"3) Select a project", // Week 10 - ITEM#2 page 2
+		"4) Update project details" // Week 11 - Changes to Menu application - ITEM#1 
 	);
 	// @formatter:on (Week 9 - ITEM#1a)
 	public static void main(String[] args) {
@@ -38,15 +39,23 @@ public class ProjectsApp {
 				case -1:
 					done = exitMenu();
 					break;
+					
 				case 1:
 					createProject();
 					break;
+					
 				case 2:
-					listProjects(); // W10 Page 1 - ITEM#2
+					listProjects(); // Week 10 Page 1 - ITEM#2
 					break;
+					
 				case 3:
-					selectProject();
+					selectProject(); 
 					break;
+					
+				case 4:
+					updateProjectDetails();  // Week 11 - ITEM#2 
+					break;
+					
 				default:
 					System.out.println("\n" + selection + " is not a valid selection. Try again.");
 					break;
@@ -57,6 +66,35 @@ public class ProjectsApp {
   				e.printStackTrace(); // W10 - Modifying the dao section "Test it" - ITEM#7
 			}
 		}
+	}
+
+	private void updateProjectDetails() {
+		
+		// Check if a current project was selected, otherwise, prompt user to make a selection
+		if (Objects.isNull(curProject)) {
+			System.out.println("\nPlease select a project.");
+			return;
+		}
+		
+		String projectName = getStringInput("Enter the project name [" + curProject.getProjectName() + "]");
+		BigDecimal estimatedHours = getDecimalInput("Enter the estimated hours [" + curProject.getEstimatedHours() + "]");
+		BigDecimal actualHours = getDecimalInput("Enter the actual hours [" + curProject.getActualHours() + "]");
+		Integer difficulty = getIntInput ("Enter the project difficulty [" + curProject.getDifficulty() + "]");
+		String notes = getStringInput("Enter the project notes [" + curProject.getNotes() + "]");
+		
+		Project project = new Project();
+		
+		project.setProjectId(curProject.getProjectId());
+		
+		// This block of code verifies user input for each field. If a value was not given, use the curProject info, otherwise, use the user's input 
+		project.setProjectName(Objects.isNull(projectName) ? curProject.getProjectName() : projectName);
+		project.setEstimatedHours(Objects.isNull(estimatedHours) ? curProject.getEstimatedHours() : estimatedHours);
+		project.setActualHours(Objects.isNull(actualHours) ? curProject.getActualHours() : actualHours);
+		project.setDifficulty(Objects.isNull(difficulty) ? curProject.getDifficulty() : difficulty);
+		project.setNotes(Objects.isNull(notes) ? curProject.getNotes() : notes);
+		
+		projectService.modifyProjectDetails(project);
+		curProject = projectService.fetchProjectById(curProject.getProjectId());
 	}
 
 	private void createProject() {
@@ -86,8 +124,6 @@ public class ProjectsApp {
 
 		projects.forEach(
 				project -> System.out.println("   " + project.getProjectId() + ": " + project.getProjectName()));
-		
-		
 	}
 
 	private void selectProject() { // W10 - Select a project - ITEM#4
@@ -99,7 +135,6 @@ public class ProjectsApp {
 		curProject = null;
 	
 		curProject = projectService.fetchProjectById(projectId);
-
 	}
 
 	private int getUserSelection() {
@@ -153,20 +188,6 @@ public class ProjectsApp {
 			throw new DbException(input + " is not a valid number. Try again.");
 		}
 	}
-
-//	    may need to remove this for the final assignment submission
-//	    private Double getDoubleInput(String prompt) {
-//		String input = getStringInput(prompt);
-//		
-//		if(Objects.isNull(input)) {
-//			return null;
-//		}
-//		try {
-//			return Double.parseDouble(input);
-//		} catch (NumberFormatException e) {
-//			throw new DbException(input + " is not a valid number.Try again."); 
-//			}
-//	}
 
 	private String getStringInput(String prompt) {
 		System.out.print(prompt + ": ");
