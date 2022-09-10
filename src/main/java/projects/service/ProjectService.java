@@ -30,7 +30,7 @@ public class ProjectService {
 		List<String> sqlStatements = convertContentToSqlStatements(content);
 		
 		// Used for debugging purposes
-		// sqlStatements.forEach(line -> System.out.println(line));
+		// sqlStatements.forEach(line -> System.out.println(line)); 
 		
 		projectDao.executeBatch(sqlStatements);
 		
@@ -91,15 +91,6 @@ public class ProjectService {
 			throw new DbException(e);
 		}
 	}
-	//	Removed main method was used temporarily for debugging/testing
-	//	public static void main(String[] args) {
-	//	new ProjectService().createAndPopulateTables();
-	//  }
-
-//	public List<Project> fetchAllProjects() { 
-//
-//		return null;
-//	}
 
 	public List<Project> fetchAllProjects() {
 		return projectDao.fetchAllProjects();
@@ -115,6 +106,12 @@ public class ProjectService {
 	public void modifyProjectDetails(Project project) {
 		if(!projectDao.modifyProjectDetails(project)) {
 			throw new DbException("Project with ID=" + project.getProjectId() + " does not exist.");
+		}
+	}
+
+	public void deleteProject(Integer projectId) {
+		if(!projectDao.deleteProject(projectId)) {
+			throw new DbException("Project with ID=" + projectId + " does not exist.");
 		}
 	}
 

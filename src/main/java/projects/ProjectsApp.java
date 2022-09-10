@@ -12,22 +12,27 @@ import projects.service.ProjectService;
 public class ProjectsApp {
 	private Scanner scanner = new Scanner(System.in);
 	private ProjectService projectService = new ProjectService();
-	private Project curProject; // W10 Coding Assignment - Select a project> ITEM#1
+	private Project curProject; // W10 Coding Assignment - Select a project> ITeM#1
 
 	// @formatter:off (Week 9 Assignment - ITEM#1a)
 	private List<String> operations = List.of(
  
+			
 		"1) Add a project", // Week 9 - ITEM#1a
 		"2) List projects", // Week 10 - ITEM#1 page 2
 		"3) Select a project", // Week 10 - ITEM#2 page 2
-		"4) Update project details" // Week 11 - Changes to Menu application - ITEM#1 
+		"4) Update project details", // Week 11 - Changes to menu application - ITEM#1 (page 2)
+		"5) Delete a project" // Week 12 - Changes to menu application - ITEM#1 (page 7)
 	);
 	// @formatter:on (Week 9 - ITEM#1a)
+	
+	// This main() is the main entry of the program
 	public static void main(String[] args) {
 
 		new ProjectsApp().processUserSelections();
 	}
 
+	// This section evaluates the user's choices and hanDles exceptions as smoothy as possible
 	private void processUserSelections() {
 		boolean done = false;
 
@@ -56,6 +61,10 @@ public class ProjectsApp {
 					updateProjectDetails();  // Week 11 - ITEM#2 
 					break;
 					
+				case 5:
+					deleteProject();
+					break;
+					
 				default:
 					System.out.println("\n" + selection + " is not a valid selection. Try again.");
 					break;
@@ -63,38 +72,9 @@ public class ProjectsApp {
 			} catch (Exception e) {
 				System.out.println("\nError: " + e.toString() + "Try again.");
 				
-  				e.printStackTrace(); // W10 - Modifying the dao section "Test it" - ITEM#7
+  			//	e.printStackTrace(); // W10 - Modifying the dao section "Test it" - ITEM#7
 			}
 		}
-	}
-
-	private void updateProjectDetails() {
-		
-		// Check if a current project was selected, otherwise, prompt user to make a selection
-		if (Objects.isNull(curProject)) {
-			System.out.println("\nPlease select a project.");
-			return;
-		}
-		
-		String projectName = getStringInput("Enter the project name [" + curProject.getProjectName() + "]");
-		BigDecimal estimatedHours = getDecimalInput("Enter the estimated hours [" + curProject.getEstimatedHours() + "]");
-		BigDecimal actualHours = getDecimalInput("Enter the actual hours [" + curProject.getActualHours() + "]");
-		Integer difficulty = getIntInput ("Enter the project difficulty [" + curProject.getDifficulty() + "]");
-		String notes = getStringInput("Enter the project notes [" + curProject.getNotes() + "]");
-		
-		Project project = new Project();
-		
-		project.setProjectId(curProject.getProjectId());
-		
-		// This block of code verifies user input for each field. If a value was not given, use the curProject info, otherwise, use the user's input 
-		project.setProjectName(Objects.isNull(projectName) ? curProject.getProjectName() : projectName);
-		project.setEstimatedHours(Objects.isNull(estimatedHours) ? curProject.getEstimatedHours() : estimatedHours);
-		project.setActualHours(Objects.isNull(actualHours) ? curProject.getActualHours() : actualHours);
-		project.setDifficulty(Objects.isNull(difficulty) ? curProject.getDifficulty() : difficulty);
-		project.setNotes(Objects.isNull(notes) ? curProject.getNotes() : notes);
-		
-		projectService.modifyProjectDetails(project);
-		curProject = projectService.fetchProjectById(curProject.getProjectId());
 	}
 
 	private void createProject() {
@@ -133,8 +113,54 @@ public class ProjectsApp {
 	
 		// Unselect the last current projected selected
 		curProject = null;
-	
+		
+		// Selects the projectId provided by the user
 		curProject = projectService.fetchProjectById(projectId);
+	}
+
+	private void updateProjectDetails() {
+		
+		// Check if a current project was selected, otherwise, prompt user to make a selection
+		if (Objects.isNull(curProject)) {
+			System.out.println("\nPlease select a project.");
+			return;
+		}
+		
+		String projectName = getStringInput("Enter the project name [" + curProject.getProjectName() + "]");
+		BigDecimal estimatedHours = getDecimalInput("Enter the estimated hours [" + curProject.getEstimatedHours() + "]");
+		BigDecimal actualHours = getDecimalInput("Enter the actual hours [" + curProject.getActualHours() + "]");
+		Integer difficulty = getIntInput ("Enter the project difficulty [" + curProject.getDifficulty() + "]");
+		String notes = getStringInput("Enter the project notes [" + curProject.getNotes() + "]");
+		
+		Project project = new Project();
+		
+		project.setProjectId(curProject.getProjectId());
+		
+		// This block of code verifies user input for each field. If a value was not given, use the curProject info, otherwise, use the user's input 
+		project.setProjectName(Objects.isNull(projectName) ? curProject.getProjectName() : projectName);
+		project.setEstimatedHours(Objects.isNull(estimatedHours) ? curProject.getEstimatedHours() : estimatedHours);
+		project.setActualHours(Objects.isNull(actualHours) ? curProject.getActualHours() : actualHours);
+		project.setDifficulty(Objects.isNull(difficulty) ? curProject.getDifficulty() : difficulty);
+		project.setNotes(Objects.isNull(notes) ? curProject.getNotes() : notes);
+		
+		projectService.modifyProjectDetails(project);
+		curProject = projectService.fetchProjectById(curProject.getProjectId());
+	}
+	
+	private void deleteProject() {
+		// A list of available projects is displayed for easy selection
+		listProjects();
+		
+		Integer projectId = getIntInput ("\nPlease enter the ID of the project to delete");
+		
+		if (Objects.nonNull(projectId)) {
+			projectService.deleteProject(projectId);
+			System.out.println("\nProject" + projectId + " was deleted successfully");
+			
+			if (Objects.nonNull(curProject) && curProject.getProjectId().equals(projectId)) {
+				curProject = null;
+			}
+		}
 	}
 
 	private int getUserSelection() {
@@ -163,6 +189,7 @@ public class ProjectsApp {
 		return true;
 	}
 	
+	// Getters and Setters
 	private BigDecimal getDecimalInput(String prompt) {
 		String input = getStringInput(prompt);
 
